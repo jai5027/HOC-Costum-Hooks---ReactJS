@@ -1,28 +1,47 @@
-import { useState } from "react"
-import useHook from "./costum/useCounter"
-import { Card } from "./costum/Card"
-import Alpha from './component/Alpha'
-function App() {
-  const [val, setVal] = useState('')
-const {count, increment, decrement, setByValue}  = useHook(0)
-const CardMain = Card(Alpha)
+import { useCallback, useMemo, useState } from "react";
+import ProductList from "./ProductList";
+import products from './data.json'
+
+const App = () => {
+
+  const [count, setCount] = useState(0);
+  const [msg, setMsg] = useState('Not Selected');
+  const [search, setSearch] = useState("");
+
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  )
+ 
+  }, [search])
+
+  const handleClick = (item) => {
+    const msg = `${item} is selected..!`
+    setMsg(msg);
+  };
+
+const memorize = useCallback(handleClick, [])
 
   return (
-    <>
-   <h1>{count}</h1>
-   <button onClick={increment}>increment</button>
-   <button onClick={decrement}>decrement</button>
-   
-   <input 
-    placeholder="something"
-    value={val}
-    onChange={(e) => setVal(e.target.value)}
-   />
-   <button onClick={() => setByValue(val)}>SET</button>
+    <div>
+      <h1>Counter: {count}</h1>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
 
-   <CardMain />
-    </>
-  )
-}
+      <br /><br />
 
-export default App
+      <input
+        placeholder="Search product..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="outline px-2 py-1 rounded-sm"
+      />
+
+      <ProductList products={filteredProducts} onClick={memorize} />
+
+      <h1>{msg}</h1>
+    </div>
+  );
+};
+
+export default App;
